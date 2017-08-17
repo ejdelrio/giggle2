@@ -1,6 +1,6 @@
 'use strict';
 
-
+const path = require('path');
 const models = module.exports = {};
 
 models.band = {
@@ -69,7 +69,8 @@ models.show = {
 
 models.track = {
   title: 'trillville',
-  url: 'http://localhost:1234'
+  url: 'http://localhost:1234',
+  soundFile: path.resolve(__dirname, '../../data/test.mp3')
 };
 
 // 16795 Say Road

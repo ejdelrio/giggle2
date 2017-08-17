@@ -25,12 +25,14 @@
     "superagent": "^3.5.2"
   },
   "dependencies": {
+    "aws-sdk": "^2.100.0",
     "bcrypt": "^1.0.2",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "cors": "^2.8.4",
     "coveralls": "^2.13.1",
     "debug": "^3.0.0",
+    "del": "^3.0.0",
     "dotenv": "^4.0.0",
     "express": "^4.15.4",
     "http-errors": "^1.6.2",

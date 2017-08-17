@@ -6,13 +6,13 @@ const del = require('del');
 const AWS = require('aws-sdk');
 const multer = require('multer');
 const Router = require('express').Router;
-const jsonParser = require('body-parser');
+const jsonParser = require('body-parser').json();
 const createError = require('http-errors');
 const debug = require('debug')('giggle:track-route');
 
-const Album = require('../model/album.js');
-const Track = require('../model/track.js');
-const bearerAuth = require('../lib/bearer-auth-middleware.js');
+const Album = require('../../model/band/album.js');
+const Track = require('../../model/band/track.js');
+const bearerAuth = require('../../lib/bearer-auth.js');
 
 AWS.config.setPromisesDependency(require('bluebird'));
 
@@ -33,7 +33,7 @@ function s3uploadProm(params) {
 
 trackRouter.post('/api/album/:id/track', bearerAuth, upload.single('soundFile'), function (req, res, next) {
   debug('POST: /api/album/:id/track');
-
+  
   if (!req.file) return next(createError(400, 'file not found'));
   if (!req.file.path) return next(createError(500, 'file not saved'));
   

@@ -17,6 +17,7 @@ const messageRoutes = require('./route/account/message-route.js');
 const bandRoutes = require('./route/band/band-route.js');
 const albumRoutes = require('./route/band/album-route.js');
 const venueRoutes = require('./route/venue/venue-route.js');
+const trackRoutes = require('./route/band/track-route.js');
 const bookingRoutes = require('./route/account/booking-route.js');
 
 
@@ -31,6 +32,7 @@ app.use(messageRoutes);
 app.use(bandRoutes);
 app.use(venueRoutes);
 app.use(bookingRoutes);
+app.use(trackRoutes);
 app.use(albumRoutes);
 app.use(errors);
 
