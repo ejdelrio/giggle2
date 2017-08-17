@@ -30,14 +30,12 @@ bookingRotuer.post('/api/booking/:userID', bearerAuth, jsonParser, function(req,
     !booking.venueUserID ?
     booking.venueUserID = model.userID:
     booking.bandUserID = model.userID;
-    console.log('THISSSSSSSSS::::', this)
     tempBooking = booking;
     return booking.save();
   })
 
   .then(() => Account.findOne({userID: req.user._id}))
   .then(account => {
-    console.log('ACCOUNT!!!!!!', account);
     account.bookings.push(tempBooking._id);
     return account.save();
   })
@@ -51,3 +49,25 @@ bookingRotuer.post('/api/booking/:userID', bearerAuth, jsonParser, function(req,
   .then(() => res.json(tempBooking))
   .catch(err => next(createError(400, err.message)));
 });
+
+bookingRotuer.get('/api/booking/:id', bearerAuth, function(req, res, next) {
+  debug('GET /api/booking/id');
+
+  if(!req.user.bandID && !req.user.venueID) return next(createError(401, 'Not authorized!!!'));
+  (!req.user.bandID ?
+  Booking.findOne({venueUserID: req.user._id, _id: req.params.id}):
+  Booking.findOne({bandUserID: req.user._id, _id: req.params.id}))
+  .then(booking => res.json(booking))
+  .catch(err => next(createError(404, err.message)));
+})
+
+bookingRotuer.get('/api/public/booking/:id', function(req, res, next) {
+  debug('GET /api/booking/id');
+
+  Booking.findById(req.params.id)
+  .then(booking => {
+    delete booking.compensation;
+    res.json(booking);
+  })
+  .catch(err => next(createError(404, err.message)));
+})

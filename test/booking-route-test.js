@@ -81,5 +81,134 @@ describe('Booking Route Test', function() {
         })
       })
     });
+
+    describe('With an invalid target ID', function() {
+
+      it('Should return a 400 code', done => {
+        request.post(`${url}/api/booking/somerandomthing`)
+        .send(templates.booking)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end(err => {
+          expect(err.status).to.equal(400)
+          done();
+        })
+      })
+    });
+
+    describe('With an invalid header', function() {
+
+      it('Should return a 401 code', done => {
+        request.post(`${url}/api/booking/${helper.users.secondUser._id}`)
+        .send(templates.booking)
+        .set({
+          Authorization: `Bearer somerandomthing`
+        })
+        .end(err => {
+          expect(err.status).to.equal(401);
+          done();
+        })
+      })
+    });
   });
+
+  describe('GET /api/booking/id', function() {
+
+    before(done => {
+      let booking = new Booking(templates.booking);
+      booking.bandUserID = helper.users.user._id;
+      booking.venueUserID = helper.users.secondUser._id;
+      booking.save()
+      .then(booking => {
+        console.log('BBBBBOOOKING', booking)
+        this.booking = booking;
+        done()
+      })
+      .catch(err => done(err));
+    })
+
+    describe('With a valid ID', () => {
+      it('Should return a 200 code a req.body', done => {
+        request.get(`${url}/api/booking/${this.booking._id}`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.bandUserID).to.equal(helper.users.user._id.toString());
+          expect(res.body.venueUserID).to.equal(helper.users.secondUser._id.toString());
+          done();
+        })
+      })
+    })
+
+    describe('With an invalid header', () => {
+      it('Should return a 401 code', done => {
+        request.get(`${url}/api/booking/${this.booking._id}`)
+        .set({
+          Authorization: `Bearer ooooooooo`
+        })
+        .end(err => {
+          expect(err.status).to.equal(401);
+          done();
+        })
+      })
+    })
+
+    describe('With an invalid id', () => {
+      it('Should return a 404 code', done => {
+        request.get(`${url}/api/booking/somerandomcrap`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end(err => {
+          expect(err.status).to.equal(404);
+          done();
+        })
+      })
+    })
+  })
+
+  describe('GET /api/booking/id', function() {
+    
+    before(done => {
+      let booking = new Booking(templates.booking);
+      booking.bandUserID = helper.users.user._id;
+      booking.venueUserID = helper.users.secondUser._id;
+      booking.save()
+      .then(booking => {
+        console.log('BBBBBOOOKING', booking)
+        this.booking = booking;
+        done()
+      })
+      .catch(err => done(err));
+    })
+
+    describe('With a valid ID', () => {
+      it('Should return a 200 code a req.body', done => {
+        request.get(`${url}/api/public/booking/${this.booking._id}`)
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.bandUserID).to.equal(helper.users.user._id.toString());
+          expect(res.body.venueUserID).to.equal(helper.users.secondUser._id.toString());
+          expect(res.body.compensation).to.equal(undefined);
+          done();
+        })
+      })
+    })
+
+
+    describe('With an invalid id', () => {
+      it('Should return a 404 code', done => {
+        request.get(`${url}/api/public/booking/somerandomcrap`)
+        .end(err => {
+          expect(err.status).to.equal(404);
+          done();
+        })
+      })
+    })
+  })
 });
