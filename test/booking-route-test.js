@@ -70,10 +70,13 @@ describe('Booking Route Test', function() {
         request.post(`${url}/api/booking/${helper.users.secondUser._id}`)
         .send(templates.booking)
         .set({
-          Authorization: `Bearer ${helper.token.user}`
+          Authorization: `Bearer ${helper.tokens.user}`
         })
         .end((err, res) => {
           if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.bandUserID).to.equal(helper.users.user._id.toString());
+          expect(res.body.venueUserID).to.equal(helper.users.secondUser._id.toString());
           done();
         })
       })
