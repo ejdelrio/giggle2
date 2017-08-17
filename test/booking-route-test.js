@@ -121,7 +121,6 @@ describe('Booking Route Test', function() {
       booking.venueUserID = helper.users.secondUser._id;
       booking.save()
       .then(booking => {
-        console.log('BBBBBOOOKING', booking)
         this.booking = booking;
         done()
       })
@@ -171,7 +170,7 @@ describe('Booking Route Test', function() {
     })
   })
 
-  describe('GET /api/booking/id', function() {
+  describe('GET /api/public/booking/id', function() {
     
     before(done => {
       let booking = new Booking(templates.booking);
@@ -179,7 +178,6 @@ describe('Booking Route Test', function() {
       booking.venueUserID = helper.users.secondUser._id;
       booking.save()
       .then(booking => {
-        console.log('BBBBBOOOKING', booking)
         this.booking = booking;
         done()
       })
@@ -207,6 +205,152 @@ describe('Booking Route Test', function() {
         .end(err => {
           expect(err.status).to.equal(404);
           done();
+        })
+      })
+    })
+  })
+
+  describe('PUT /api/booking/id', function() {
+
+    before(done => {
+      let booking = new Booking(templates.booking);
+      booking.bandUserID = helper.users.user._id;
+      booking.venueUserID = helper.users.secondUser._id;
+      booking.save()
+      .then(booking => {
+        this.booking = booking;
+        done()
+      })
+      .catch(err => done(err));
+    })
+
+    describe('With a valid ID, header, and req.body', () => {
+      let showDate = new Date(60606)
+      it('Should return a 200 code a req.body', done => {
+        request.put(`${url}/api/booking/${this.booking._id}`)
+        .send({date: showDate})
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.bandUserID).to.equal(helper.users.user._id.toString());
+          expect(res.body.venueUserID).to.equal(helper.users.secondUser._id.toString());
+          expect(new Date(res.body.date).toString()).to
+          .equal(showDate.toString());
+          done();
+        })
+      })
+    })
+
+    describe('With an invalid header', () => {
+      it('Should return a 401 code', done => {
+        request.get(`${url}/api/booking/${this.booking._id}`)
+        .set({
+          Authorization: `Bearer ooooooooo`
+        })
+        .end(err => {
+          expect(err.status).to.equal(401);
+          done();
+        })
+      })
+    })
+
+    describe('With an invalid id', () => {
+      it('Should return a 404 code', done => {
+        request.put(`${url}/api/booking/somerandomcrap`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end(err => {
+          expect(err.status).to.equal(404);
+          done();
+        })
+      })
+    })
+  })
+
+  describe('PUT /api/booking/confirm/id', function() {
+    
+    before(done => {
+      let booking = new Booking(templates.booking);
+      booking.bandUserID = helper.users.user._id;
+      booking.venueUserID = helper.users.secondUser._id;
+      booking.save()
+      .then(booking => {
+        this.booking = booking;
+        done()
+      })
+      .catch(err => done(err));
+    })
+
+    describe('With a valid ID, header, and req.body', () => {
+      it('Should return a 200 code a req.body, bandConfrim should equal true', done => {
+        request.put(`${url}/api/booking/confirm/${this.booking._id}`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.bandUserID).to.equal(helper.users.user._id.toString());
+          expect(res.body.venueUserID).to.equal(helper.users.secondUser._id.toString());
+          expect(res.body.bandConfirm).to.equal(true);
+          done();
+        })
+      })
+    })
+  })
+  describe('DELETE /api/booking/id', function() {
+    
+    before(done => {
+      let booking = new Booking(templates.booking);
+      booking.bandUserID = helper.users.user._id;
+      booking.venueUserID = helper.users.secondUser._id;
+      booking.save()
+      .then(booking => {
+        this.booking = booking;
+        done()
+      })
+      .catch(err => done(err));
+    })
+
+    describe('With a valid header and id', () => {
+      it('Should return a 204 code', done => {
+        request.delete(`${url}/api/booking/${this.booking._id}`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(204)
+          done()
+        })
+      })
+    })
+    describe('With an invalid id', () => {
+      it('Should return a 204 code', done => {
+        request.delete(`${url}/api/booking/random`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err) => {
+          expect(err.status).to.equal(404)
+          done()
+        })
+      })
+    })
+
+    describe('With an invalid header', () => {
+      it('Should return a 204 code', done => {
+        request.delete(`${url}/api/booking/${this.booking._id}`)
+        .set({
+          Authorization: `Bearer Idontbelonghere`
+        })
+        .end((err) => {
+          expect(err.status).to.equal(401)
+          done()
         })
       })
     })

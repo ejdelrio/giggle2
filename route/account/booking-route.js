@@ -55,14 +55,23 @@ bookingRotuer.get('/api/booking/:id', bearerAuth, function(req, res, next) {
 
   if(!req.user.bandID && !req.user.venueID) return next(createError(401, 'Not authorized!!!'));
   (!req.user.bandID ?
-  Booking.findOne({venueUserID: req.user._id, _id: req.params.id}):
-  Booking.findOne({bandUserID: req.user._id, _id: req.params.id}))
+
+  Booking.findOne({
+    venueUserID: req.user._id,
+     _id: req.params.id
+  }):
+
+  Booking.findOne({
+    bandUserID: req.user._id,
+    _id: req.params.id
+  }))
+
   .then(booking => res.json(booking))
   .catch(err => next(createError(404, err.message)));
 })
 
 bookingRotuer.get('/api/public/booking/:id', function(req, res, next) {
-  debug('GET /api/booking/id');
+  debug('GET /api/public/booking/id');
 
   Booking.findById(req.params.id)
   .then(booking => {
@@ -70,4 +79,77 @@ bookingRotuer.get('/api/public/booking/:id', function(req, res, next) {
     res.json(booking);
   })
   .catch(err => next(createError(404, err.message)));
+})
+
+bookingRotuer.put('/api/booking/:id', bearerAuth, jsonParser, function(req, res, next) {
+  debug('PUT /api/booking/confirm/id');
+  console.log('I AM THE MASTER!!!!!', req.user)
+  if(!req.user.bandID && !req.user.venueID) return next(createError(401, 'Not authorized!!!'));
+
+  (!req.user.bandID ?
+
+    Booking.findOneAndUpdate({
+      venueUserID: req.user._id,
+       _id: req.params.id},
+      req.body, 
+      {new: true
+    }):
+
+    Booking.findOneAndUpdate({
+      bandUserID: req.user._id,
+       _id: req.params.id},
+      req.body, 
+      {new: true
+    }))
+
+    .then(booking => res.json(booking))
+    .catch(err => next(createError(404, err.message)));
+})
+
+bookingRotuer.put('/api/booking/confirm/:id', bearerAuth, function(req, res, next) {
+  debug('PUT /api/booking/confirm/id');
+  if(!req.user.bandID && !req.user.venueID) return next(createError(401, 'Not authorized!!!'));
+
+  (!req.user.bandID ?
+
+    Booking.findOneAndUpdate({
+      venueUserID: req.user._id,
+       _id: req.params.id},
+      {venueConfirm: true}, 
+      {new: true
+    }):
+
+    Booking.findOneAndUpdate({
+      bandUserID: req.user._id,
+       _id: req.params.id},
+       {bandConfirm: true}, 
+      {new: true}))
+
+    .then(booking => {
+      res.json(booking)
+    })
+    .catch(err => next(createError(404, err.message)));
+})
+
+bookingRotuer.delete('/api/booking/:id', bearerAuth, function(req, res, next) {
+  debug('DELETE /api/booking/id');
+  console.log('I am working ok!!!!!!')
+  if(!req.user.bandID && !req.user.venueID) return next(createError(401, 'Not authorized!!!'));
+
+  (!req.user.bandID ?
+
+    Booking.findOneAndRemove({
+      venueUserID: req.user._id,
+       _id: req.params.id}):
+
+    Booking.findOneAndRemove({
+      bandUserID: req.user._id,
+       _id: req.params.id}))
+
+    .then(() => {
+      res.status(204);
+      res.send('Booking Deleted!');
+      res.end
+    })
+    .catch(err => next(createError(404, err.message)));
 })
