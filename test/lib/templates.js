@@ -33,8 +33,7 @@ models.secondUser = {
 }
 
 models.album = {
-  albumTitle: 'fogofwar',
-  numberOfTracks: 10,
+  title: 'fogofwar',
   datePublished: new Date()
 };
 

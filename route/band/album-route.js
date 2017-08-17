@@ -23,7 +23,7 @@ albumRouter.post('/api/album', bearerAuth, jsonParser, function(req, res, next) 
     return band.save();
   })
   .then(() => newAlbum.save())
-  .then(album => res.json(album))
+  .then(() => res.json(newAlbum))
   .catch(err => next(createError(400, err.message)));
 
 
@@ -52,5 +52,12 @@ albumRouter.put('/api/album/:id', bearerAuth, jsonParser, function(req, res, nex
 albumRouter.delete('/api/album/:id', bearerAuth, function(req, res, next) {
   debug('DELETE /api/band/id');
 
+    Album.findOneAndRemove({_id: req.params.id, userID: req.user._id})
+    .then(() => {
+      res.status(204);
+      res.send('Album deleted');
+      res.end();
+    })
+    .catch(err => next(createError(404, err.message)));
 
 })

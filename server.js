@@ -15,6 +15,7 @@ const userRoutes = require('./route/user-route.js');
 const accountRoutes = require('./route/account/account-route.js');
 const messageRoutes = require('./route/account/message-route.js');
 const bandRoutes = require('./route/band/band-route.js');
+const albumRoutes = require('./route/band/album-route.js');
 const venueRoutes = require('./route/venue/venue-route.js');
 const bookingRoutes = require('./route/account/booking-route.js');
 
@@ -27,9 +28,10 @@ app.use(cors());
 app.use(userRoutes);
 app.use(accountRoutes);
 app.use(messageRoutes);
-app.use(bandRoutes)
+app.use(bandRoutes);
 app.use(venueRoutes);
 app.use(bookingRoutes);
+app.use(albumRoutes);
 app.use(errors);
 
 app.listen(PORT, () => {
