@@ -1,0 +1,56 @@
+'use strict';
+
+const Router = require('express').Router;
+const debug = require('debug')('giggle:album router')
+const jsonParser = require('body-parser')('giggle: album parser');
+const createError = require('http-errors');
+
+const bearerAuth = require('../../lib/bearer-auth.js');
+const Album = require('../../model/band/album.js');
+const Band = require('../../model/band/band.js');
+
+const albumRouter = module.exports = new Router();
+
+albumRouter.post('/api/album', bearerAuth, jsonParser, function(req, res, next) {
+  debug('POST /api/band');
+
+  req.body.userID = req.user._id;
+  let newAlbum = new Album(req.body);
+
+  Band.findOne({userID: req.user._id})
+  .then(band => {
+    band.albums.push(newAlbum._id);
+    return band.save();
+  })
+  .then(() => newAlbum.save())
+  .then(album => res.json(album))
+  .catch(err => next(createError(400, err.message)));
+
+
+})
+
+albumRouter.get('/api/album/:id', function(req, res, next) {
+  debug('GET /api/album/id');
+
+  Album.findById(req.params.id)
+  .populate('tracks')
+  .then(band => res.json(band))
+  .catch(err => next(createError(404, err.message)));
+})
+
+albumRouter.put('/api/album/:id', bearerAuth, jsonParser, function(req, res, next) {
+  debug('PUT /api/album/id');
+
+  Album.findOneAndUpdate({
+    userID: req.user._id, 
+    _id : req.params.id
+  }, req.body)
+  .then(album => res.json(album))
+  .catch(err => next(createError(404, err.message)));
+})
+
+albumRouter.delete('/api/album/:id', bearerAuth, function(req, res, next) {
+  debug('DELETE /api/band/id');
+
+
+})
