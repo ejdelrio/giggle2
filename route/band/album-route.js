@@ -43,7 +43,7 @@ albumRouter.put('/api/album/:id', bearerAuth, jsonParser, function(req, res, nex
   Album.findOneAndUpdate({
     userID: req.user._id, 
     _id : req.params.id
-  }, req.body,
+  }, cdreq.body,
     {new: true})
   .then(album => res.json(album))
   .catch(err => next(createError(404, err.message)));
