@@ -87,4 +87,34 @@ describe('Album Route Tests', function() {
       });
     });
   });
+  describe('GET /api/album/id', function() {
+    before(done => {
+      storeModel(Album, 'album', 'user')
+      .then(() => done())
+      .catch(err => done(err));
+    })
+
+    describe('With a valid id', function() {
+      it('Should return a 200 code and req.body', done => {
+        request.get(`${url}/api/album/${helper.storedItem.album._id}`)
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200)
+          expect(res.body.userID).to.equal(helper.users.user._id.toString())
+          expect(res.body.title).to.equal(templates.album.title);
+          done();
+        });
+      });
+    });
+
+    describe('With an invalid ID', function() {
+      it('Should return a 404 code', done => {
+        request.post(`${url}/api/album/stuff`)
+        .end((err) => {
+          expect(err.status).to.equal(404);
+          done();
+        });
+      });
+    });
+  });
 });

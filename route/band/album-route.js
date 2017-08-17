@@ -33,7 +33,6 @@ albumRouter.get('/api/album/:id', function(req, res, next) {
   debug('GET /api/album/id');
 
   Album.findById(req.params.id)
-  .populate('tracks')
   .then(band => res.json(band))
   .catch(err => next(createError(404, err.message)));
 })
