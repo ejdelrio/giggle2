@@ -45,4 +45,4 @@ bandRouter.put('/api/band', bearerAuth, jsonParser, function(req, res, next) {
   Band.findOneAndUpdate({userID: req.user._id}, req.body, {new: true})
   .then(band => res.json(band))
   .catch(err => next(createError(404, err.message)))
-})
+});
