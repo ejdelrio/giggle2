@@ -128,6 +128,7 @@ describe('Message Routes Test', function() {
         ))
         .then(message => {
           this.message = message
+          console.log('MESSAGEEEEEEEEEEE', message);
           return Account.findById(helper.users.secondUser.accountID)
         })
         .then(account => {
@@ -135,6 +136,7 @@ describe('Message Routes Test', function() {
           this.account = account;
           account.save();
         })
+        .then(() => this.message.save())
         .then(() => done())
         .catch(err => done(err));
       })
@@ -149,10 +151,15 @@ describe('Message Routes Test', function() {
       })
 
       it('Should return a 204 status code', done => {
-        Account.findById(this.account._id)
-        .populate('inbox')
-        .then(() => done())
-        .catch(err => done(err))
+        request.delete(`${url}/api/message/${this.message._id}`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.secondUser}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(204);
+          done();
+        })
         
       })
 
