@@ -18,7 +18,9 @@ let url = templates.url;
 
 describe('Album Route Tests', function() {
   before(done => {
-    authenticateUser('user')
+    User.remove({})
+    .then(() => Account.remove({}))
+    .then(() => authenticateUser('user'))
     .then(() => storeModel(Band, 'band', 'user'))
     .then(() => done())
     .catch(err => done(err));
@@ -87,6 +89,8 @@ describe('Album Route Tests', function() {
       });
     });
   });
+
+
   describe('GET /api/album/id', function() {
     before(done => {
       storeModel(Album, 'album', 'user')
@@ -109,7 +113,7 @@ describe('Album Route Tests', function() {
 
     describe('With an invalid ID', function() {
       it('Should return a 404 code', done => {
-        request.post(`${url}/api/album/stuff`)
+        request.get(`${url}/api/album/stuff`)
         .end((err) => {
           expect(err.status).to.equal(404);
           done();
@@ -117,4 +121,79 @@ describe('Album Route Tests', function() {
       });
     });
   });
+
+  describe('DELETE /api/album/id', function() {
+    describe('With a valid id and header', function() {
+
+      it('Should return a 204 code', done => {
+        console.log('CURRENT USER!!!!!', helper.storedItem)
+        request.delete(`${url}/api/album/${helper.storedItem.album._id}`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(204);
+          done();
+        })
+      })
+
+      it('Should return a 404 code', done => {
+        request.delete(`${url}/api/album/notvalid`)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err) => {
+          expect(err.status).to.equal(404);
+          done();
+        })
+      })
+    })
+  })
+
+  before(done => {
+    Album.remove({})
+    .then(() => done())
+    .catch(err => done(err));
+  })
+
+  describe('PUT /api/album/id', function() {
+    describe('With a valid id, body and header', function() {
+      before(done => {
+        storeModel(Album, 'album', 'user')
+        .then(() => done())
+        .catch(err => done(err));
+      })
+
+      it('Should return a 200 code and a req.body', done => {
+        request.put(`${url}/api/album/${helper.storedItem.album._id}`)
+        .send({title: 'Paranoid'})
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) return done(err);
+          expect(res.status).to.equal(200);
+          expect(res.body.title).to.equal('Paranoid');
+          expect(res.body._id).to.equal(helper.storedItem.album._id.toString());
+          expect(res.body.userID).to.equal(helper.users.user._id.toString());
+          done();
+        })
+      })
+    })
+
+    describe('With an invalid ID', function() {
+      it('Should return a 404 code', done => {
+        request.put(`${url}/api/album/123321`)
+        .send({title: 'Paranoid'})
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err) => {
+          expect(err.status).to.equal(404);
+          done();
+        })
+      })
+    })
+  })
 });

@@ -30,20 +30,22 @@ messageRouter.post('/api/message/:id', bearerAuth, jsonParser, function(req, res
 
 messageRouter.delete('/api/message/:id', bearerAuth, function(req, res, next) {
   debug('DELETE /api/message/id');
-
-  console.log('THERE IS NO GOD')
-
   Message.findOneAndRemove({
     _id: req.params.id,
     userID: req.user._id
   })
   .then(() => Account.findOne({
-    userID: req.userID
+    userID: req.user._id
   }))
   .then(account => {
     let target = account.inbox.indexOf(req.params.id);
     account.inbox.splice(target, 1);
     return account.save();
+  })
+  .then(() => {
+    res.status(204);
+    res.send('Message Deleted');
+    res.end();
   })
   .catch(err => next(createError(404, err.message)))
 })

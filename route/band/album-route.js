@@ -2,7 +2,7 @@
 
 const Router = require('express').Router;
 const debug = require('debug')('giggle:album router')
-const jsonParser = require('body-parser')('giggle: album parser');
+const jsonParser = require('body-parser').json();
 const createError = require('http-errors');
 
 const bearerAuth = require('../../lib/bearer-auth.js');
@@ -39,11 +39,11 @@ albumRouter.get('/api/album/:id', function(req, res, next) {
 
 albumRouter.put('/api/album/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('PUT /api/album/id');
-
+  console.log('Fuck this   stupid teest', req.user)
   Album.findOneAndUpdate({
     userID: req.user._id, 
     _id : req.params.id
-  }, cdreq.body,
+  }, req.body,
     {new: true})
   .then(album => res.json(album))
   .catch(err => next(createError(404, err.message)));

@@ -60,7 +60,6 @@ describe('Track Routes', function () {
             expect(res.status).to.equal(200);
             expect(res.body.title).to.equal(templates.track.title);
             expect(res.body.url).to.equal(templates.track.url);
-            expect(res.body.albumID).to.equal(helper.storedItem.album._id.toString());
             expect(res.body.userID).to.equal(helper.users.user._id.toString());
             helper.tokens.trackID = res.body._id
             done();
@@ -73,7 +72,7 @@ describe('Track Routes', function () {
     describe('when given a valid id and token', function () {
       it('deletes the item from the db and aws', (done) => {
         request.delete(`${url}/api/album/${helper.storedItem.album._id}/track/${helper.tokens.trackID}`)
-          .set({ Authorization: `Bearer ${helper.tokens.user}` })
+          .set({ Authorization: `Bearer ${helper.tokens.user}`})
           .end((err, rsp) => {
             expect(rsp.status).to.equal(204);
             done();

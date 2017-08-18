@@ -9,7 +9,7 @@ models.band = {
 };
 
 models.bandTwo = {
-  bandName: 'slayer',
+  name: 'slayer',
   genre: 'thras metal',
   userID: 'gotohell'
 };
