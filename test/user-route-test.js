@@ -50,6 +50,15 @@ describe('User route test', function() {
           done();
         })
       })
+
+      it('Should return a token', done => {
+        request.get(`${templates.url}/api/login`)
+        .set({})
+        .end((err) => {
+          expect(err.status).to.equal(404);
+          done();
+        });
+      });
     })
   })
 })
