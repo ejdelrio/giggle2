@@ -24,16 +24,19 @@ userRouter.post('/api/signup/', jsonParser, function(req, res, next) {
   newAccount.save()
   .then(() => newUser.encryptPassword(password))
   .then(user => user.save())
-  .then(user => user.generateHash())
-  .then(token => res.send(token))
+  .then(user => {
+    res.user = user
+    user.generateHash()
+  })
+  .then(() => res.send(res.user))
   .catch(err => next(createError(400, err.message)));
 
 });
 
-userRouter.get('api/login', basicAuth, function(req, res, next) {
+userRouter.get('/api/login', basicAuth, function(req, res, next) {
   debug('GET /api/login');
   User.findOne({ username: req.auth.username })
-  .then( user => user.comparePasswordHash(req.auth.password))
+  .then( user => user.comparePassword(req.auth.password))
   .then( user => user.generateToken())
   .then( token => res.send(token))
   .catch(next);
