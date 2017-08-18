@@ -25,7 +25,6 @@ var trackKey = '';
 
 function s3uploadProm(params) {
   return new Promise((resolve, reject) => {
-    console.log(params);
     s3.upload(params, (err, s3data) => {
       if(err) reject(err);
       resolve(s3data);
@@ -40,8 +39,6 @@ trackRouter.post('/api/album/:id/track', bearerAuth, upload.single('soundFile'),
   if (!req.file.path) return next(createError(500, 'file not saved'));
   
   let ext = path.extname(req.file.originalname);
-
-  console.log('XXXXXXXXXX',req.file)
 
   let params = {
     ACL: 'public-read',
