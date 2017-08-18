@@ -39,7 +39,7 @@ albumRouter.get('/api/album/:id', function(req, res, next) {
 
 albumRouter.put('/api/album/:id', bearerAuth, jsonParser, function(req, res, next) {
   debug('PUT /api/album/id');
-  
+  console.log('Fuck this   stupid teest', req.user)
   Album.findOneAndUpdate({
     userID: req.user._id, 
     _id : req.params.id

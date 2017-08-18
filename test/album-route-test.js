@@ -18,7 +18,9 @@ let url = templates.url;
 
 describe('Album Route Tests', function() {
   before(done => {
-    authenticateUser('user')
+    User.remove({})
+    .then(() => Account.remove({}))
+    .then(() => authenticateUser('user'))
     .then(() => storeModel(Band, 'band', 'user'))
     .then(() => done())
     .catch(err => done(err));
@@ -122,29 +124,6 @@ describe('Album Route Tests', function() {
 
   describe('DELETE /api/album/id', function() {
     describe('With a valid id and header', function() {
-      before(done => {
-        User.remove({})
-        .then(() => authenticateUser('user'))
-        .then(() => storeModel(Album, 'album', 'user'))
-        .then(() => done())
-        .catch(err => done(err));
-      })
-
-      after(done => {
-        Promise.all([
-          User.remove({}),
-          Album.remove({}),
-          Account.remove({}),
-        ])
-        .then(() => {
-          delete helper.users.user;
-          delete helper.tokens.user;
-          delete helper.storedItem.album;
-          delete helper.accounts.user;
-          done();
-        })
-        .catch(err => done(err));
-      })
 
       it('Should return a 204 code', done => {
         console.log('CURRENT USER!!!!!', helper.storedItem)
@@ -181,27 +160,8 @@ describe('Album Route Tests', function() {
   describe('PUT /api/album/id', function() {
     describe('With a valid id, body and header', function() {
       before(done => {
-        User.remove({})
-        .then(() => Account.remove({}))
-        .then(() => authenticateUser('user'))
-        .then(() => storeModel(Account, 'account', 'user'))
-        .then(() => storeModel(Album, 'album', 'user'))
+        storeModel(Album, 'album', 'user')
         .then(() => done())
-        .catch(err => done(err));
-      })
-
-      after(done => {
-        Promise.all([
-          User.remove({}),
-          Album.remove({}),
-          Account.remove({}),
-        ])
-        .then(() => {
-          delete helper.users.user;
-          delete helper.storedItem.album;
-          delete helper.accounts.user;
-          done();
-        })
         .catch(err => done(err));
       })
 
@@ -220,14 +180,17 @@ describe('Album Route Tests', function() {
           done();
         })
       })
+    })
+
     describe('With an invalid ID', function() {
       it('Should return a 404 code', done => {
-        request.put(`${url}/api/album/${helper.storedItem.album._id}`)
+        request.put(`${url}/api/album/123321`)
+        .send({title: 'Paranoid'})
         .set({
           Authorization: `Bearer ${helper.tokens.user}`
         })
         .end((err) => {
-          expect(err.status).to.equal(400);
+          expect(err.status).to.equal(404);
           done();
         })
       })
