@@ -17,7 +17,7 @@ const bearerAuth = require('../../lib/bearer-auth.js');
 AWS.config.setPromisesDependency(require('bluebird'));
 
 const s3 = new AWS.S3();
-const dataDir = `${__dirname}/../data`;
+const dataDir = `${__dirname}/../../data`;
 const upload = multer({ dest: dataDir });
 
 const trackRouter = module.exports = Router();
@@ -25,7 +25,9 @@ var trackKey = '';
 
 function s3uploadProm(params) {
   return new Promise((resolve, reject) => {
+    console.log(params);
     s3.upload(params, (err, s3data) => {
+      if(err) reject(err);
       resolve(s3data);
     });
   });
@@ -33,11 +35,13 @@ function s3uploadProm(params) {
 
 trackRouter.post('/api/album/:id/track', bearerAuth, upload.single('soundFile'), function (req, res, next) {
   debug('POST: /api/album/:id/track');
-  
+
   if (!req.file) return next(createError(400, 'file not found'));
   if (!req.file.path) return next(createError(500, 'file not saved'));
   
   let ext = path.extname(req.file.originalname);
+
+  console.log('XXXXXXXXXX',req.file)
 
   let params = {
     ACL: 'public-read',
@@ -45,16 +49,10 @@ trackRouter.post('/api/album/:id/track', bearerAuth, upload.single('soundFile'),
     Key: `${req.file.filename}${ext}`,
     Body: fs.createReadStream(req.file.path)
   };
-
+  
   Album.findById(req.params.id)
-    .then(album => {
-      let track = new Track(req.body);
-      track.albumID = req.params.id;
-      track.userID = req.user._id;
-    })
     .then(() => s3uploadProm(params))
     .then(s3data => {
-      trackKey = s3data.key;
       del([`${dataDir}/*`]);
       let trackData = {
         title: req.body.title,
@@ -62,15 +60,15 @@ trackRouter.post('/api/album/:id/track', bearerAuth, upload.single('soundFile'),
         userID: req.user._id,
         albumID: req.params.id,
         awsKey: s3data.key,
-        awsURI: s3data.location
+        awsURI: s3data.Location
       }
-      return Track.create(trackData);
+      return new Track(trackData).save();
     })
     .then(track => {
       console.log('CREATED THE TRACK!', track);
       res.json(track)
     })
-    .catch(err => next(createError(404, err.message)));
+    .catch(err => next(createError(400, err.message)));
 
 });
 
