@@ -128,4 +128,32 @@ describe('Band Route Tests', function() {
       });
     });
   });
+
+  describe('PUT /api/band', function() {
+    describe('when provide valid band id and body',  function() {
+      before(done => {
+        storeModel(Band, 'band', 'user')
+        .then(() => done())
+        .catch(err => done(err));
+      })
+
+      it('responds with a changed album', (done) => {
+        let update = { name: templates.bandTwo.name, genre: templates.bandTwo.genre, userID: helper.users.user._id };
+        request.put(`${url}/api/band`)
+        .send(update)
+        .set({
+          Authorization: `Bearer ${helper.tokens.user}`
+        })
+        .end((err, res) => {
+          if(err) console.log(err);
+          console.log('HERE fucker', update);
+          expect(res.status).to.equal(200);
+          expect(res.body.name).to.equal(update.name);
+          expect(res.body.genre).to.equal(update.genre);
+          expect(res.body.userID.toString()).to.equal(update.userID.toString());
+          done();
+        })
+      })
+    })
+  })
 });
