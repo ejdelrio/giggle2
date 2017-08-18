@@ -11,6 +11,7 @@ const userRouter = module.exports = new Router();
 const User = require('../model/user.js');
 const Account = require('../model/account/account.js');
 
+
 userRouter.post('/api/signup/', jsonParser, function(req, res, next) {
   debug('POST /api/signup');
   
