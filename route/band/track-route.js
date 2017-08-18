@@ -53,9 +53,7 @@ trackRouter.post('/api/album/:id/track', bearerAuth, upload.single('soundFile'),
   Album.findById(req.params.id)
     .then(() => s3uploadProm(params))
     .then(s3data => {
-      console.log(s3data)
-      trackKey = s3data.key;
-      del([`${dataDir}/*`]);
+      // del([`${dataDir}/*`]);
       let trackData = {
         title: req.body.title,
         url: req.body.url,
